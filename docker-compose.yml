@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    platform: linux/x86_64
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=backend_challengeDB
+      - MYSQL_USER=backend
+      - MYSQL_PASSWORD=ab12c
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  backend_challenge:
+    container_name: backend_challenge
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: on-failure
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    ports:
+      - 8080:8080
